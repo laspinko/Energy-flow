@@ -9,9 +9,19 @@ void b(int a[]) {
 
 int main(){
     NeuNet a;
-    a.print();
     for(int i = 0; i < 4; i ++) {
         a.makeStep();
-        a.print();
+        //a.print();
+    }
+
+    std::cout << "Copy of a :";
+
+    NeuNet b;
+    b = a;
+
+
+    for(int i = 0; i < 4; i ++) {
+        b.makeStep();
+        b.print();
     }
 }

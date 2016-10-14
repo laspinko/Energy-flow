@@ -14,22 +14,19 @@ Connection::Connection(){
 }
 
 Connection::Connection(const Connection &other) {
-    weight = other.weight;
-    recipient = other.recipient;
-    value = other.value;
+    copy(other);
 }
 
 Connection Connection::operator=(const Connection &other) {
-    weight = other.weight;
-    recipient = other.recipient;
-    value = other.value;
+    copy(other);
+    return *this;
 }
 
 Connection::~Connection() {
 
 }
 
-double Connection::getWeight() {
+double Connection::getWeight() const{
     return weight;
 }
 
@@ -47,7 +44,13 @@ void Connection::transfer() {
 }
 
 void Connection::print() const{
-    std::cout << "-- " << value << " --> " << recipient -> getId();
+    std::cout << "-- " << value << "--(w" << weight << ")--> " << recipient -> getId();
+}
+
+void Connection::copy(const Connection &other) {
+    weight = other.weight;
+    recipient = other.recipient;
+    value = other.value;
 }
 
 //Neuron
@@ -60,19 +63,17 @@ Neuron::Neuron(int d){
 }
 
 Neuron::Neuron(const Neuron &other) {
-    value = other.value;
-    id = other.id;
-    setSynapses(other.synapses);
+    copy(other);
 }
 
 Neuron Neuron::operator=(const Neuron &other) {
-    value = other.value;
-    id = other.id;
-    setSynapses(other.synapses);
+    delete[] synapses;
+    copy(other);
+    return *this;
 }
 
 Neuron::~Neuron() {
-    if(synapses) delete[] synapses;
+    delete[] synapses;
 }
 
 void Neuron::addValue(double v) {
@@ -96,7 +97,7 @@ void Neuron::transferCharge() {
     }
 }
 
-int Neuron::getId(){
+int Neuron::getId() const {
     return id;
 }
 
@@ -104,9 +105,9 @@ void Neuron::setId(int d){
     id = d;
 }
 
-void Neuron::setSynapses(Connection syn[]) {
-    if(synapses) delete[] synapses;
-    numSynapses = sizeof(*syn) / sizeof(syn[0]);
+void Neuron::setSynapses(int size, Connection syn[]) {
+    delete[] synapses;
+    numSynapses = size;
     synapses = new Connection[numSynapses];
     for(int i = 0; i < numSynapses; i ++){
         synapses[i] = Connection(syn[i]);
@@ -123,6 +124,12 @@ void Neuron::print() const{
     std::cout << std::endl;
 }
 
+void Neuron::copy(const Neuron &other) {
+    value = other.value;
+    id = other.id;
+    setSynapses(other.numSynapses, other.synapses);
+}
+
 // NeuNet
 
 NeuNet::NeuNet() {
@@ -135,7 +142,7 @@ NeuNet::NeuNet() {
     for(int i = 0; i < numNeurons; i ++) {
         if(i + 1 != numNeurons) {
             syn[0] = Connection( 1.0 / ( i + 1 ) , neurons[i+1]);
-            neurons[i].setSynapses(syn);
+            neurons[i].setSynapses(1,syn);
         }
         neurons[i].setId(i);
     }
@@ -143,11 +150,13 @@ NeuNet::NeuNet() {
 }
 
 NeuNet::NeuNet(const NeuNet &other) {
-
+    copy(other);
 }
 
 NeuNet NeuNet::operator=(const NeuNet &other) {
-
+    delete[] neurons;
+    copy(other);
+    return *this;
 }
 
 NeuNet::~NeuNet() {
@@ -173,5 +182,19 @@ void NeuNet::print() const {
         std::cout << i << ":" << std::endl;
         neurons[i].print();
         std::cout << std::endl;
+    }
+}
+
+void NeuNet::copy(const NeuNet &other) {
+    numNeurons = other.numNeurons;
+    neurons = new Neuron[numNeurons];
+    for(int i = 0; i < numNeurons; i ++) {
+        Connection syn[other.neurons[i].numSynapses];
+        for(int j = 0; j < other.neurons[i].numSynapses; j ++) {
+            syn[j] = Connection(other.neurons[i].synapses[j].weight,
+                                neurons[other.neurons[i].synapses[j].recipient -> getId()]);
+        }
+        neurons[i].setSynapses(other.neurons[i].numSynapses,syn);
+        neurons[i].setId(i);
     }
 }

@@ -19,7 +19,7 @@ public:
 
     ~Connection();
 
-    double getWeight();
+    double getWeight() const;
 
     void setWeight(double w);
 
@@ -31,10 +31,15 @@ public:
 
 protected:
 private:
+    void copy(const Connection &other);
+
     double weight;
     Neuron *recipient;
 
     double value;
+
+    friend class Neuron;
+    friend class NeuNet;
 };
 
 class Neuron {
@@ -51,7 +56,7 @@ public:
 
     void setValue(double v);
 
-    int getId();
+    int getId() const;
 
     void distributeCharge();
 
@@ -59,15 +64,19 @@ public:
 
     void setId(int d);
 
-    void setSynapses(Connection syn[]);
+    void setSynapses(int size, Connection syn[]);
 
     void print() const;
 protected:
 private:
+    void copy(const Neuron &other);
+
     double value;
     Connection *synapses;
     int numSynapses;
     int id;
+
+    friend class NeuNet;
 };
 
 class NeuNet {
@@ -85,6 +94,8 @@ public:
     void print() const;
 protected:
 private:
+    void copy(const NeuNet &other);
+
     Neuron *neurons;
     int numNeurons;
 };
