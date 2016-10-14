@@ -3,11 +3,11 @@
 #include<iostream>
 #include<vector>
 
-struct Connection;
+class Connection;
 class Neuron;
 class NeuNet;
 
-struct Connection {
+class Connection {
 public:
     Connection(double w, Neuron &rec);
 
@@ -19,24 +19,45 @@ public:
 
     ~Connection();
 
+    double getWeight();
+
+    void setWeight(double w);
+
+    void hold(double c);
+
+    void transfer();
+
     void print() const;
 
-
-    double weight;
-    Neuron *recipient;
 protected:
 private:
+    double weight;
+    Neuron *recipient;
+
+    double value;
 };
 
 class Neuron {
 public:
-    Neuron();
+    Neuron(int d = 0);
 
     Neuron(const Neuron &other);
 
     Neuron operator=(const Neuron &other);
 
     ~Neuron();
+
+    void addValue(double v);
+
+    void setValue(double v);
+
+    int getId();
+
+    void distributeCharge();
+
+    void transferCharge();
+
+    void setId(int d);
 
     void setSynapses(Connection syn[]);
 
@@ -46,6 +67,7 @@ private:
     double value;
     Connection *synapses;
     int numSynapses;
+    int id;
 };
 
 class NeuNet {
@@ -58,9 +80,13 @@ public:
 
     ~NeuNet();
 
+    void makeStep();
+
+    void print() const;
 protected:
 private:
-
+    Neuron *neurons;
+    int numNeurons;
 };
 
 #endif
