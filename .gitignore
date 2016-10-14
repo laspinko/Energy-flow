@@ -1,0 +1,9 @@
+#Code::blocks files
+*.cbp
+*.depend
+*layout
+obj/
+bin/
+
+
+*.o
