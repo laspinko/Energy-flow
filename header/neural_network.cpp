@@ -156,6 +156,9 @@ void Neuron::print() const{
 void Neuron::copy(const Neuron &other) {
     value = other.value;
     id = other.id;
+    type = other.type;
+    input = other.input;
+    output = other.output;
     setSynapses(other.numSynapses, other.synapses);
 }
 
@@ -209,7 +212,6 @@ void NeuNet::setOutputFunction(int d, void (&outp)(double)) {
 }
 
 void NeuNet::makeStep() {
-
     for(int i = 0; i < numNeurons; i ++) {
         if(neurons[i].type == INPUT || neurons[i].type == MIXED) {
             neurons[i].getInput();
@@ -221,6 +223,7 @@ void NeuNet::makeStep() {
     for(int i = 0; i < numNeurons; i ++) {
         neurons[i].transferCharge();
     }
+    std::cout << "hi";
     for(int i = 0; i < numNeurons; i ++) {
         if(neurons[i].type == OUTPUT || neurons[i].type == MIXED) {
             neurons[i].setOutput();
@@ -248,5 +251,8 @@ void NeuNet::copy(const NeuNet &other) {
         }
         neurons[i].setSynapses(other.neurons[i].numSynapses,syn);
         neurons[i].setId(i);
+        neurons[i].type = other.neurons[i].type;
+        neurons[i].input = other.neurons[i].input;
+        neurons[i].output = other.neurons[i].output;
     }
 }

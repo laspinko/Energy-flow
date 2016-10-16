@@ -23,8 +23,9 @@ int main(){
     a.setInputFunction(0, inp);
     a.setOutputFunction(1, outp);
     a.setOutputFunction(2, outp);
+    NeuNet b = a;
     for(int i = 0; i < 10; i ++) {
-        a.makeStep();
+        b.makeStep();
         std::cout << std::endl;
     }
 }
