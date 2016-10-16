@@ -7,6 +7,14 @@ class Connection;
 class Neuron;
 class NeuNet;
 
+enum NeuronType{
+    NORMAL,
+    INPUT,
+    OUTPUT,
+    MIXED,
+
+    TYPES
+};
 class Connection {
 public:
     Connection(double w, Neuron &rec);
@@ -56,13 +64,21 @@ public:
 
     void setValue(double v);
 
-    int getId() const;
-
     void distributeCharge();
 
     void transferCharge();
 
+    int getId() const;
+
     void setId(int d);
+
+    void setInputFunction(double (&inp)(void));
+
+    void setOutputFunction(void (&inp)(double));
+
+    void getInput();
+
+    void setOutput();
 
     void setSynapses(int size, Connection syn[]);
 
@@ -76,8 +92,14 @@ private:
     int numSynapses;
     int id;
 
+
+    NeuronType type;
+    double (*input)(void);
+    void (*output)(double);
+
     friend class NeuNet;
 };
+
 
 class NeuNet {
 public:
@@ -88,6 +110,10 @@ public:
     NeuNet operator=(const NeuNet &other);
 
     ~NeuNet();
+
+    void setInputFunction(int d, double (&inp)(void));
+
+    void setOutputFunction(int d, void (&inp)(double));
 
     void makeStep();
 

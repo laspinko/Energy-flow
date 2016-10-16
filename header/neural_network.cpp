@@ -8,7 +8,7 @@ Connection::Connection(double w, Neuron& rec) {
     value = 0;
 }
 
-Connection::Connection(){
+Connection::Connection() {
     weight = 0;
     value = 0;
 }
@@ -55,7 +55,7 @@ void Connection::copy(const Connection &other) {
 
 //Neuron
 
-Neuron::Neuron(int d){
+Neuron::Neuron(int d) {
     value = 0;
     id = d;
     numSynapses = 0;
@@ -101,15 +101,44 @@ int Neuron::getId() const {
     return id;
 }
 
-void Neuron::setId(int d){
+void Neuron::setId(int d) {
     id = d;
+}
+
+void Neuron::setInputFunction(double (&f)(void)) {
+    if(type == OUTPUT || type == MIXED) type = MIXED;
+    else    type = INPUT;
+    input = f;
+}
+
+
+void Neuron::setOutputFunction(void (&f)(double)) {
+    if(type == INPUT || type == MIXED) type = MIXED;
+    else    type = OUTPUT;
+    output = f;
+}
+
+void Neuron::getInput() {
+    if(type == INPUT || type == MIXED) {
+        setValue(input());
+    } else {
+        std::cerr << "This is not an input neuron";
+    }
+}
+
+void Neuron::setOutput() {
+    if(type == OUTPUT || type == MIXED) {
+        output(value);
+    } else {
+        std::cerr << "This is not an output neuron";
+    }
 }
 
 void Neuron::setSynapses(int size, Connection syn[]) {
     delete[] synapses;
     numSynapses = size;
     synapses = new Connection[numSynapses];
-    for(int i = 0; i < numSynapses; i ++){
+    for(int i = 0; i < numSynapses; i ++) {
         synapses[i] = Connection(syn[i]);
     }
 }
@@ -117,7 +146,7 @@ void Neuron::setSynapses(int size, Connection syn[]) {
 void Neuron::print() const{
     std::cout << "Value : " << value << std::endl;
     std::cout << numSynapses << " synapses ";
-    for(int i = 0; i < numSynapses; i ++){
+    for(int i = 0; i < numSynapses; i ++) {
         synapses[i].print();
         if(i + 1 != numSynapses)    std::cout << ",";
     }
@@ -136,7 +165,7 @@ NeuNet::NeuNet() {
 
     //Sample network
 
-    numNeurons = 5;
+    numNeurons = 3;
     neurons = new Neuron[numNeurons];
     Connection syn[1];
     for(int i = 0; i < numNeurons; i ++) {
@@ -163,22 +192,45 @@ NeuNet::~NeuNet() {
     delete[] neurons;
 }
 
-void NeuNet::makeStep() {
-    neurons[0].setValue(1);
+void NeuNet::setInputFunction(int d, double (&inp)(void)) {
+    if(d >= 0 && d < numNeurons) {
+        neurons[d].setInputFunction(inp);
+    } else {
+        std::cerr << "Invalid id";
+    }
+}
 
+void NeuNet::setOutputFunction(int d, void (&outp)(double)) {
+    if(d >= 0 && d < numNeurons) {
+        neurons[d].setOutputFunction(outp);
+    } else {
+        std::cerr << "Invalid id";
+    }
+}
+
+void NeuNet::makeStep() {
+
+    for(int i = 0; i < numNeurons; i ++) {
+        if(neurons[i].type == INPUT || neurons[i].type == MIXED) {
+            neurons[i].getInput();
+        }
+    }
     for(int i = 0; i < numNeurons; i ++) {
         neurons[i].distributeCharge();
     }
     for(int i = 0; i < numNeurons; i ++) {
         neurons[i].transferCharge();
     }
-
-    neurons[0].setValue(1);
+    for(int i = 0; i < numNeurons; i ++) {
+        if(neurons[i].type == OUTPUT || neurons[i].type == MIXED) {
+            neurons[i].setOutput();
+        }
+    }
 }
 
 void NeuNet::print() const {
     std::cout << "Neural network:" << std::endl;
-    for(int i = 0; i < numNeurons; i ++){
+    for(int i = 0; i < numNeurons; i ++) {
         std::cout << i << ":" << std::endl;
         neurons[i].print();
         std::cout << std::endl;

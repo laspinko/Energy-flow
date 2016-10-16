@@ -1,4 +1,6 @@
 #include<iostream>
+#include<random>
+#include<ctime>
 #include"header/neural_network.h"
 
 void b(int a[]) {
@@ -7,21 +9,22 @@ void b(int a[]) {
     }
 }
 
+double inp() {
+    return (rand() % 100) / 100.0;
+}
+void outp(double d) {
+    std::cout << "NeuNet returned: " << d << std::endl;
+}
+
 int main(){
+    srand(time(0));
+
     NeuNet a;
-    for(int i = 0; i < 4; i ++) {
+    a.setInputFunction(0, inp);
+    a.setOutputFunction(1, outp);
+    a.setOutputFunction(2, outp);
+    for(int i = 0; i < 10; i ++) {
         a.makeStep();
-        //a.print();
-    }
-
-    std::cout << "Copy of a :";
-
-    NeuNet b;
-    b = a;
-
-
-    for(int i = 0; i < 4; i ++) {
-        b.makeStep();
-        b.print();
+        std::cout << std::endl;
     }
 }
